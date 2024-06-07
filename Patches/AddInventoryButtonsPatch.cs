@@ -8,14 +8,13 @@ using HarmonyLib;
 using System.Collections.Generic;
 using System.Linq;
 using System.Reflection;
-using UnityEngine;
-using UnityEngine.UI;
 
 namespace AutoDeposit
 {
     public class AddInventoryButtonsPatch : ModulePatch
     {
         private static readonly EItemUiContextType[] AllowedScreens = [EItemUiContextType.InventoryScreen, EItemUiContextType.ScavengerInventoryScreen];
+        private static readonly EquipmentSlot[] Slots = [EquipmentSlot.TacticalVest, EquipmentSlot.Pockets, EquipmentSlot.Backpack, EquipmentSlot.SecuredContainer];
 
         protected override MethodBase GetTargetMethod()
         {
@@ -30,10 +29,19 @@ namespace AutoDeposit
                 return;
             }
 
-            AddAutoDepositButton(___dictionary_0[EquipmentSlot.TacticalVest]);
-            AddAutoDepositButton(___dictionary_0[EquipmentSlot.Pockets]);
-            AddAutoDepositButton(___dictionary_0[EquipmentSlot.Backpack]);
-            AddAutoDepositButton(___dictionary_0[EquipmentSlot.SecuredContainer]);
+            foreach (EquipmentSlot slot in Slots)
+            {
+                SlotView slotView = ___dictionary_0[slot];
+                AddAutoDepositButton(slotView);
+
+                void onChange(Item item)
+                {
+                    // Gotta wait because the slot gridview isn't set up yet
+                    slotView.WaitForEndOfFrame(() => AddAutoDepositButton(slotView));
+                }
+
+                slotView.AddDisposable(slotView.Slot.ReactiveContainedItem.Subscribe(onChange));
+            }
         }
 
         private static void AddAutoDepositButton(SlotView slotView)
@@ -51,40 +59,7 @@ namespace AutoDeposit
             AutoDepositPanel autoDepositPanel = gridsView.transform.Find("AutoDeposit")?.GetComponent<AutoDepositPanel>();
             if (autoDepositPanel == null)
             {
-                GameObject template = ItemUiContext.Instance.R().GridWindowTemplate.R().GridSortPanel.gameObject;
-                GameObject clone = UnityEngine.Object.Instantiate(template, gridsView.transform, false);
-                clone.name = "AutoDeposit";
-
-                var gridSortPanel = clone.GetComponent<GridSortPanel>();
-                UnityEngine.Object.Destroy(gridSortPanel);
-
-                var text = clone.transform.Find("Text").gameObject;
-                UnityEngine.Object.Destroy(text);
-
-                Transform iconTransform = clone.transform.Find("SortIcon");
-                iconTransform.name = "ArrowIcon";
-
-                Transform iconTransform2 = UnityEngine.Object.Instantiate(iconTransform, clone.transform, false);
-                iconTransform2.name = "BagIcon";
-
-                Image arrowIcon = iconTransform.GetComponent<Image>();
-                arrowIcon.sprite = EFTHardSettings.Instance.StaticIcons.GetAttributeIcon(EItemAttributeId.EffectiveDist);
-                arrowIcon.transform.Rotate(0f, 0f, -45f);
-                arrowIcon.overrideSprite = null;
-                arrowIcon.SetNativeSize();
-
-                Image bagIcon = iconTransform2.GetComponent<Image>();
-                RagFairClass.IconsLoader.GetIcon("/files/handbook/icon_gear_cases.png", sprite =>
-                {
-                    bagIcon.sprite = sprite;
-                    bagIcon.overrideSprite = null;
-                    bagIcon.SetNativeSize();
-                });
-
-                var button = clone.GetComponent<Button>();
-                button.onClick.RemoveAllListeners();
-
-                autoDepositPanel = clone.AddComponent<AutoDepositPanel>();
+                autoDepositPanel = AutoDepositPanel.Create(gridsView.transform);
             }
 
             autoDepositPanel.Show(container);

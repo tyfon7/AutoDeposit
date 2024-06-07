@@ -10,6 +10,7 @@ namespace AutoDeposit
             R.Init();
 
             new AddInventoryButtonsPatch().Enable();
+            new AddTransferButtonPatch().Enable();
         }
     }
 }

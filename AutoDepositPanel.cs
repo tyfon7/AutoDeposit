@@ -2,6 +2,7 @@
 using EFT.Communications;
 using EFT.InventoryLogic;
 using EFT.UI;
+using EFT.UI.DragAndDrop;
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
@@ -42,6 +43,12 @@ namespace AutoDeposit
             this.container = container;
             this.inventoryController = ItemUiContext.Instance.R().InventoryController;
             gameObject.SetActive(true);
+        }
+
+        public void OnDestroy()
+        {
+            this.container = null;
+            this.inventoryController = null;
         }
 
         private void OnClick()
@@ -100,6 +107,44 @@ namespace AutoDeposit
             }
 
             Singleton<GUISounds>.Instance.PlayItemSound(stash.ItemSound, EInventorySoundType.pickup, false);
+        }
+
+        public static AutoDepositPanel Create(Transform parent)
+        {
+            GameObject template = ItemUiContext.Instance.R().GridWindowTemplate.R().GridSortPanel.gameObject;
+            GameObject clone = UnityEngine.Object.Instantiate(template, parent, false);
+            clone.name = "AutoDeposit";
+
+            var gridSortPanel = clone.GetComponent<GridSortPanel>();
+            UnityEngine.Object.Destroy(gridSortPanel);
+
+            var text = clone.transform.Find("Text").gameObject;
+            UnityEngine.Object.Destroy(text);
+
+            Transform iconTransform = clone.transform.Find("SortIcon");
+            iconTransform.name = "ArrowIcon";
+
+            Transform iconTransform2 = UnityEngine.Object.Instantiate(iconTransform, clone.transform, false);
+            iconTransform2.name = "BagIcon";
+
+            Image arrowIcon = iconTransform.GetComponent<Image>();
+            arrowIcon.sprite = EFTHardSettings.Instance.StaticIcons.GetAttributeIcon(EItemAttributeId.EffectiveDist);
+            arrowIcon.transform.Rotate(0f, 0f, -45f);
+            arrowIcon.overrideSprite = null;
+            arrowIcon.SetNativeSize();
+
+            Image bagIcon = iconTransform2.GetComponent<Image>();
+            RagFairClass.IconsLoader.GetIcon("/files/handbook/icon_gear_cases.png", sprite =>
+            {
+                bagIcon.sprite = sprite;
+                bagIcon.overrideSprite = null;
+                bagIcon.SetNativeSize();
+            });
+
+            var button = clone.GetComponent<Button>();
+            button.onClick.RemoveAllListeners();
+
+            return clone.AddComponent<AutoDepositPanel>();
         }
     }
 }
