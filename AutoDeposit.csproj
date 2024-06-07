@@ -54,7 +54,7 @@
 	  <HintPath>$(PathToSPT)\EscapeFromTarkov_Data\Managed\UnityEngine.InputLegacyModule.dll</HintPath>
 	</Reference>
 	<Reference Include="UnityEngine.TextRenderingModule">
-	  <HintPath>..\..\..\..\SPT\3.8.3-debug\EscapeFromTarkov_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
+	  <HintPath>$(PathToSPT)\EscapeFromTarkov_Data\Managed\UnityEngine.TextRenderingModule.dll</HintPath>
 	</Reference>
 	<Reference Include="UnityEngine.UI">
 	  <HintPath>$(PathToSPT)\EscapeFromTarkov_Data\Managed\UnityEngine.UI.dll</HintPath>
