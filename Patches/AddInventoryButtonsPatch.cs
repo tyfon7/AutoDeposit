@@ -31,6 +31,11 @@ namespace AutoDeposit
 
             foreach (EquipmentSlot slot in Slots)
             {
+                if (!___dictionary_0.ContainsKey(slot))
+                {
+                    continue;
+                }
+
                 SlotView slotView = ___dictionary_0[slot];
                 AddAutoDepositButton(slotView);
 

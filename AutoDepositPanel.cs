@@ -54,6 +54,11 @@ namespace AutoDeposit
         private void OnClick()
         {
             StashClass stash = inventoryController.Inventory.Stash;
+            if (stash == null)
+            {
+                return;
+            }
+
             List<Item> stashItems = stash.GetNotMergedItems().ToList();
 
             List<Item> items = container.GetNotMergedItems().Reverse().ToList(); // Reverse so items get moved before their container
