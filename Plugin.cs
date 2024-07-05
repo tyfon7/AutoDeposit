@@ -8,6 +8,7 @@ namespace AutoDeposit
         public void Awake()
         {
             R.Init();
+            Settings.Init(Config);
 
             new AddInventoryButtonsPatch().Enable();
             new AddTransferButtonPatch().Enable();
