@@ -1,10 +1,10 @@
-﻿using Aki.Reflection.Patching;
-using Comfort.Common;
+﻿using Comfort.Common;
 using EFT;
 using EFT.InventoryLogic;
 using EFT.UI;
 using EFT.UI.DragAndDrop;
 using HarmonyLib;
+using SPT.Reflection.Patching;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -68,12 +68,7 @@ namespace AutoDeposit
 
             LootItemClass container = searchableItemView.R().LootItem;
 
-            AutoDepositPanel autoDepositPanel = gridsView.transform.Find("AutoDeposit")?.GetComponent<AutoDepositPanel>();
-            if (autoDepositPanel == null)
-            {
-                autoDepositPanel = AutoDepositPanel.Create(gridsView.transform);
-            }
-
+            AutoDepositPanel autoDepositPanel = (gridsView.transform.Find("AutoDeposit")?.GetComponent<AutoDepositPanel>()) ?? AutoDepositPanel.Create(gridsView.transform);
             autoDepositPanel.Show(container);
         }
 
