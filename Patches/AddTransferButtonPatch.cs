@@ -1,4 +1,5 @@
-﻿using EFT.UI;
+﻿using EFT.InventoryLogic;
+using EFT.UI;
 using EFT.UI.DragAndDrop;
 using HarmonyLib;
 using SPT.Reflection.Patching;
@@ -24,7 +25,7 @@ namespace AutoDeposit
 
             Transform leftGrid = __instance.transform.Find("TransferScreen/Left Person/Possessions Grid");
             AutoDepositPanel autoDepositPanel = (leftGrid.Find("AutoDeposit")?.GetComponent<AutoDepositPanel>()) ?? AutoDepositPanel.Create(leftGrid);
-            if (____itemsToTransferGridView.Grid.ParentItem is LootItemClass container)
+            if (____itemsToTransferGridView.Grid.ParentItem is CompoundItem container)
             {
                 autoDepositPanel.Show(container);
             }

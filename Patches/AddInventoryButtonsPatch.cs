@@ -66,7 +66,7 @@ namespace AutoDeposit
                 return;
             }
 
-            LootItemClass container = searchableItemView.R().LootItem;
+            CompoundItem container = searchableItemView.R().LootItem;
 
             AutoDepositPanel autoDepositPanel = (gridsView.transform.Find("AutoDeposit")?.GetComponent<AutoDepositPanel>()) ?? AutoDepositPanel.Create(gridsView.transform);
             autoDepositPanel.Show(container);

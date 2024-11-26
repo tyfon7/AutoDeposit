@@ -13,8 +13,8 @@ namespace AutoDeposit
     public class AutoDepositPanel : MonoBehaviour
     {
         private Button button;
-        private LootItemClass container;
-        private InventoryControllerClass inventoryController;
+        private CompoundItem container;
+        private InventoryController inventoryController;
 
         public void Awake()
         {
@@ -38,7 +38,7 @@ namespace AutoDeposit
             button.onClick.AddListener(OnClick);
         }
 
-        public void Show(LootItemClass container)
+        public void Show(CompoundItem container)
         {
             this.container = container;
             this.inventoryController = ItemUiContext.Instance.R().InventoryController;
@@ -53,7 +53,7 @@ namespace AutoDeposit
 
         private void OnClick()
         {
-            StashClass stash = inventoryController.Inventory.Stash;
+            StashItemClass stash = inventoryController.Inventory.Stash;
             if (stash == null)
             {
                 return;
@@ -71,16 +71,16 @@ namespace AutoDeposit
                 }
 
                 // Don't move containers that aren't empty
-                if (item is LootItemClass lootItem && lootItem.GetNotMergedItems().Any(i => i != lootItem))
+                if (item is CompoundItem lootItem && lootItem.GetNotMergedItems().Any(i => i != lootItem))
                 {
                     continue;
                 }
 
-                List<LootItemClass> targets = [];
+                List<CompoundItem> targets = [];
 
                 foreach (var match in stashItems.Where(i => i.TemplateId == item.TemplateId))
                 {
-                    var targetContainer = match.Parent.Container.ParentItem as LootItemClass;
+                    var targetContainer = match.Parent.Container.ParentItem as CompoundItem;
                     if (targetContainer != stash)
                     {
                         targets.Add(targetContainer);
@@ -103,7 +103,7 @@ namespace AutoDeposit
 
                 if (result.Value is IDestroyResult destroyResult && destroyResult.ItemsDestroyRequired)
                 {
-                    NotificationManagerClass.DisplayWarningNotification(new GClass3344(item, destroyResult.ItemsToDestroy).GetLocalizedDescription(), ENotificationDurationType.Default);
+                    NotificationManagerClass.DisplayWarningNotification(new GClass3726(item, destroyResult.ItemsToDestroy).GetLocalizedDescription(), ENotificationDurationType.Default);
                     continue;
                 }
 

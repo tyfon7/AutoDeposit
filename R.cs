@@ -1,4 +1,5 @@
-﻿using EFT.UI;
+﻿using EFT.InventoryLogic;
+using EFT.UI;
 using EFT.UI.DragAndDrop;
 using HarmonyLib;
 using System;
@@ -74,12 +75,12 @@ namespace AutoDeposit
             public static void InitTypes()
             {
                 Type = typeof(EFT.UI.ItemUiContext);
-                InventoryControllerField = AccessTools.GetDeclaredFields(Type).Single(t => t.FieldType == typeof(InventoryControllerClass));
+                InventoryControllerField = AccessTools.GetDeclaredFields(Type).Single(t => t.FieldType == typeof(InventoryController));
                 GridWindowTemplateField = AccessTools.Field(Type, "_gridWindowTemplate");
                 ItemContextProperty = AccessTools.GetDeclaredProperties(Type).Single(p => p.PropertyType == typeof(ItemContextAbstractClass));
             }
 
-            public InventoryControllerClass InventoryController { get { return (InventoryControllerClass)InventoryControllerField.GetValue(Value); } }
+            public InventoryController InventoryController { get { return (InventoryController)InventoryControllerField.GetValue(Value); } }
             public EFT.UI.GridWindow GridWindowTemplate { get { return (EFT.UI.GridWindow)GridWindowTemplateField.GetValue(Value); } }
             public ItemContextAbstractClass ItemContext { get { return (ItemContextAbstractClass)ItemContextProperty.GetValue(Value); } }
         }
@@ -94,11 +95,11 @@ namespace AutoDeposit
             {
                 Type = typeof(EFT.UI.GridWindow);
                 GridSortPanelField = AccessTools.Field(Type, "_sortPanel");
-                LootItemField = AccessTools.GetDeclaredFields(Type).Single(f => f.FieldType == typeof(LootItemClass));
+                LootItemField = AccessTools.GetDeclaredFields(Type).Single(f => f.FieldType == typeof(CompoundItem));
             }
 
             public EFT.UI.DragAndDrop.GridSortPanel GridSortPanel { get { return (EFT.UI.DragAndDrop.GridSortPanel)GridSortPanelField.GetValue(Value); } }
-            public LootItemClass LootItem { get { return (LootItemClass)LootItemField.GetValue(Value); } }
+            public CompoundItem LootItem { get { return (CompoundItem)LootItemField.GetValue(Value); } }
         }
 
         public class SearchableSlotView(object value) : Wrapper(value)
@@ -125,11 +126,11 @@ namespace AutoDeposit
             {
                 Type = typeof(EFT.UI.DragAndDrop.SearchableItemView);
                 ContainedGridsViewField = AccessTools.Field(Type, "containedGridsView_0");
-                LootItemField = AccessTools.GetDeclaredFields(Type).Single(f => f.FieldType == typeof(LootItemClass));
+                LootItemField = AccessTools.GetDeclaredFields(Type).Single(f => f.FieldType == typeof(CompoundItem));
             }
 
             public ContainedGridsView ContainedGridsView { get { return (ContainedGridsView)ContainedGridsViewField.GetValue(Value); } }
-            public LootItemClass LootItem { get { return (LootItemClass)LootItemField.GetValue(Value); } }
+            public CompoundItem LootItem { get { return (CompoundItem)LootItemField.GetValue(Value); } }
         }
     }
 
