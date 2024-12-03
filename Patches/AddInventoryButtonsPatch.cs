@@ -74,8 +74,8 @@ namespace AutoDeposit
 
         public static bool InRaid()
         {
-            bool? inRaid = Singleton<AbstractGame>.Instance?.InRaid;
-            return inRaid.HasValue && inRaid.Value;
+            var instance = Singleton<AbstractGame>.Instance;
+            return instance != null && instance.InRaid;
         }
     }
 }
