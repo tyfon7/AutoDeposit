@@ -1,10 +1,10 @@
-﻿using Comfort.Common;
+﻿using System.Collections.Generic;
+using System.Linq;
+using Comfort.Common;
 using EFT.Communications;
 using EFT.InventoryLogic;
 using EFT.UI;
 using EFT.UI.DragAndDrop;
-using System.Collections.Generic;
-using System.Linq;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -31,7 +31,7 @@ namespace AutoDeposit
             var rectTransform = GetComponent<RectTransform>();
             rectTransform.anchorMin = Vector3.one;
             rectTransform.anchorMax = Vector3.one;
-            rectTransform.offsetMin = new Vector2(rectTransform.offsetMin.x + 5f, rectTransform.offsetMin.y);
+            rectTransform.offsetMin = new Vector2(rectTransform.offsetMin.x - 10f, rectTransform.offsetMin.y);
             rectTransform.anchoredPosition = new Vector2(0, rectTransform.rect.height + 4f);
 
             button = GetComponent<Button>();
@@ -103,12 +103,11 @@ namespace AutoDeposit
 
                 if (result.Value is IDestroyResult destroyResult && destroyResult.ItemsDestroyRequired)
                 {
-                    NotificationManagerClass.DisplayWarningNotification(new GClass3726(item, destroyResult.ItemsToDestroy).GetLocalizedDescription(), ENotificationDurationType.Default);
+                    NotificationManagerClass.DisplayWarningNotification(new GClass3823(item, destroyResult.ItemsToDestroy).GetLocalizedDescription(), ENotificationDurationType.Default);
                     continue;
                 }
 
                 inventoryController.RunNetworkTransaction(result.Value, null);
-
             }
 
             Singleton<GUISounds>.Instance.PlayItemSound(stash.ItemSound, EInventorySoundType.pickup, false);

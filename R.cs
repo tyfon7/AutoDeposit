@@ -1,10 +1,10 @@
-﻿using EFT.InventoryLogic;
+﻿using System;
+using System.Linq;
+using System.Reflection;
+using EFT.InventoryLogic;
 using EFT.UI;
 using EFT.UI.DragAndDrop;
 using HarmonyLib;
-using System;
-using System.Linq;
-using System.Reflection;
 
 namespace AutoDeposit
 {
