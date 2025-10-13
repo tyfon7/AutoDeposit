@@ -1,0 +1,1 @@
+global using DestroyItemWarning = GClass1583;

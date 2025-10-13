@@ -103,7 +103,7 @@ namespace AutoDeposit
 
                 if (result.Value is IDestroyResult destroyResult && destroyResult.ItemsDestroyRequired)
                 {
-                    NotificationManagerClass.DisplayWarningNotification(new GClass3823(item, destroyResult.ItemsToDestroy).GetLocalizedDescription(), ENotificationDurationType.Default);
+                    NotificationManagerClass.DisplayWarningNotification(new DestroyItemWarning(item, destroyResult.ItemsToDestroy).GetLocalizedDescription(), ENotificationDurationType.Default);
                     continue;
                 }
 
