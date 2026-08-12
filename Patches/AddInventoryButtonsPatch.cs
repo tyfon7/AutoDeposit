@@ -10,72 +10,71 @@ using EFT.UI.DragAndDrop;
 using HarmonyLib;
 using SPT.Reflection.Patching;
 
-namespace AutoDeposit
+namespace AutoDeposit;
+
+public class AddInventoryButtonsPatch : ModulePatch
 {
-    public class AddInventoryButtonsPatch : ModulePatch
+    private static readonly EItemUiContextType[] AllowedScreens = [EItemUiContextType.InventoryScreen, EItemUiContextType.ScavengerInventoryScreen];
+    private static readonly Dictionary<EquipmentSlot, Func<bool>> Slots = new()
     {
-        private static readonly EItemUiContextType[] AllowedScreens = [EItemUiContextType.InventoryScreen, EItemUiContextType.ScavengerInventoryScreen];
-        private static readonly Dictionary<EquipmentSlot, Func<bool>> Slots = new()
-        {
-            { EquipmentSlot.TacticalVest, () => Settings.EnableRig.Value },
-            { EquipmentSlot.Pockets, () => Settings.EnablePockets.Value },
-            { EquipmentSlot.Backpack, () => Settings.EnableBackpack.Value },
-            { EquipmentSlot.SecuredContainer, () => Settings.EnableSecureContainer.Value }
-        };
+        { EquipmentSlot.TacticalVest, () => Settings.EnableRig.Value },
+        { EquipmentSlot.Pockets, () => Settings.EnablePockets.Value },
+        { EquipmentSlot.Backpack, () => Settings.EnableBackpack.Value },
+        { EquipmentSlot.SecuredContainer, () => Settings.EnableSecureContainer.Value }
+    };
 
-        protected override MethodBase GetTargetMethod()
+    protected override MethodBase GetTargetMethod()
+    {
+        return AccessTools.Method(typeof(ContainersPanel), nameof(ContainersPanel.Show));
+    }
+
+    [PatchPostfix]
+    public static void Postfix(Dictionary<EquipmentSlot, SlotView> ____slotViews)
+    {
+        if (!AllowedScreens.Contains(ItemUiContext.Instance.ContextType) || InRaid())
         {
-            return AccessTools.Method(typeof(ContainersPanel), nameof(ContainersPanel.Show));
+            return;
         }
 
-        [PatchPostfix]
-        public static void Postfix(Dictionary<EquipmentSlot, SlotView> ___dictionary_0)
+        foreach (EquipmentSlot slot in Slots.Keys)
         {
-            if (!AllowedScreens.Contains(ItemUiContext.Instance.ContextType) || InRaid())
+            if (!Slots[slot]() || !____slotViews.ContainsKey(slot))
             {
-                return;
+                continue;
             }
 
-            foreach (EquipmentSlot slot in Slots.Keys)
+            SlotView slotView = ____slotViews[slot];
+            AddAutoDepositButton(slotView);
+
+            void OnChange(Item item)
             {
-                if (!Slots[slot]() || !___dictionary_0.ContainsKey(slot))
-                {
-                    continue;
-                }
-
-                SlotView slotView = ___dictionary_0[slot];
-                AddAutoDepositButton(slotView);
-
-                void onChange(Item item)
-                {
-                    // Gotta wait because the slot gridview isn't set up yet
-                    slotView.WaitForEndOfFrame(() => AddAutoDepositButton(slotView));
-                }
-
-                slotView.AddDisposable(slotView.Slot.ReactiveContainedItem.Subscribe(onChange));
-            }
-        }
-
-        private static void AddAutoDepositButton(SlotView slotView)
-        {
-            SearchableSlotView searchableSlotView = slotView as SearchableSlotView;
-            SearchableItemView searchableItemView = searchableSlotView?.R().SearchableItemView;
-            ContainedGridsView gridsView = searchableItemView?.R().ContainedGridsView;
-            if (gridsView == null)
-            {
-                return;
+                // Gotta wait because the slot gridview isn't set up yet
+                slotView.WaitForEndOfFrame(() => AddAutoDepositButton(slotView));
             }
 
-            CompoundItem container = searchableItemView.R().LootItem;
-
-            AutoDepositPanel autoDepositPanel = (gridsView.transform.Find("AutoDeposit")?.GetComponent<AutoDepositPanel>()) ?? AutoDepositPanel.Create(gridsView.transform);
-            autoDepositPanel.Show(container);
+            slotView.AddDisposable(slotView.Slot.ReactiveContainedItem.Subscribe(OnChange));
         }
+    }
 
-        public static bool InRaid()
+    private static void AddAutoDepositButton(SlotView slotView)
+    {
+        SearchableSlotView searchableSlotView = slotView as SearchableSlotView;
+        SearchableItemView searchableItemView = searchableSlotView?._searchableItemView;
+        ContainedGridsView gridsView = searchableItemView?.R().ContainedGridsView;
+        if (gridsView == null)
         {
-            var instance = Singleton<AbstractGame>.Instance;
-            return instance != null && instance.InRaid;
+            return;
         }
+
+        CompoundItem container = searchableItemView.R().LootItem;
+
+        AutoDepositPanel autoDepositPanel = (gridsView.transform.Find("AutoDeposit")?.GetComponent<AutoDepositPanel>()) ?? AutoDepositPanel.Create(gridsView.transform);
+        autoDepositPanel.Show(container);
+    }
+
+    public static bool InRaid()
+    {
+        var instance = Singleton<AbstractGame>.Instance;
+        return instance != null && instance.InRaid;
     }
 }

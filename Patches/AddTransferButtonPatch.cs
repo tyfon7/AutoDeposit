@@ -1,34 +1,32 @@
 ﻿using System.Reflection;
 using EFT.InventoryLogic;
 using EFT.UI;
-using EFT.UI.DragAndDrop;
 using HarmonyLib;
 using SPT.Reflection.Patching;
 using UnityEngine;
 
-namespace AutoDeposit
+namespace AutoDeposit;
+
+public class AddTransferButtonPatch : ModulePatch
 {
-    public class AddTransferButtonPatch : ModulePatch
+    protected override MethodBase GetTargetMethod()
     {
-        protected override MethodBase GetTargetMethod()
+        return AccessTools.FirstMethod(typeof(TransferItemsScreen), m => m.Name == nameof(TransferItemsScreen.Show));
+    }
+
+    [PatchPostfix]
+    public static void Postfix(TransferItemsScreen __instance)
+    {
+        if (!Settings.EnableTransfer.Value)
         {
-            return AccessTools.FirstMethod(typeof(TransferItemsScreen), m => m.Name == nameof(TransferItemsScreen.Show));
+            return;
         }
 
-        [PatchPostfix]
-        public static void Postfix(TransferItemsScreen __instance, GridView ____itemsToTransferGridView)
+        Transform leftGrid = __instance.transform.Find("TransferScreen/Left Person/Possessions Grid");
+        AutoDepositPanel autoDepositPanel = (leftGrid.Find("AutoDeposit")?.GetComponent<AutoDepositPanel>()) ?? AutoDepositPanel.Create(leftGrid);
+        if (__instance._itemsToTransferGridView.Grid.ParentItem is CompoundItem container)
         {
-            if (!Settings.EnableTransfer.Value)
-            {
-                return;
-            }
-
-            Transform leftGrid = __instance.transform.Find("TransferScreen/Left Person/Possessions Grid");
-            AutoDepositPanel autoDepositPanel = (leftGrid.Find("AutoDeposit")?.GetComponent<AutoDepositPanel>()) ?? AutoDepositPanel.Create(leftGrid);
-            if (____itemsToTransferGridView.Grid.ParentItem is CompoundItem container)
-            {
-                autoDepositPanel.Show(container);
-            }
+            autoDepositPanel.Show(container);
         }
     }
 }

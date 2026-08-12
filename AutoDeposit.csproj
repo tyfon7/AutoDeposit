@@ -1,17 +1,18 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
-    <TargetFramework>net471</TargetFramework>
+    <TargetFramework>netstandard2.1</TargetFramework>
     <AssemblyName>Tyfon.AutoDeposit</AssemblyName>
     <Description>SPT AutoDeposit</Description>
-    <Version>5.0.0</Version>
+    <Version>6.0.0</Version>
     <AllowUnsafeBlocks>true</AllowUnsafeBlocks>
     <LangVersion>latest</LangVersion>
+    <AppendTargetFrameworkToOutputPath>false</AppendTargetFrameworkToOutputPath>
     <Configurations>Debug;Release</Configurations>
   </PropertyGroup>
 
   <PropertyGroup>
-    <SPTPath>..\..\..\..\SPT\4.0</SPTPath>
+    <SPTPath>..\..\..\..\SPT\4.1</SPTPath>
   </PropertyGroup>
 
   <ItemGroup>
@@ -20,12 +21,6 @@
     </DeployTarget>
     <DeployTarget Include="Release" Condition="'$(Configuration)'=='Release'">
       <Path>$(ProjectDir)dist</Path>
-    </DeployTarget>
-    <DeployTarget Include="Fika1">
-      <Path>d:\fika</Path>
-    </DeployTarget>
-    <DeployTarget Include="Fika2">
-      <Path>d:\fika2</Path>
     </DeployTarget>
   </ItemGroup>
 
